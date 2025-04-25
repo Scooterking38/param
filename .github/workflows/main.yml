@@ -1,0 +1,34 @@
+name: Run ParamSpider
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: 'Domain to scan'
+        required: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y python3-pip git
+        git clone https://github.com/devanshbatham/paramspider.git
+        cd paramspider
+        pip3 install -r requirements.txt
+
+    - name: Run ParamSpider
+      run: |
+        cd paramspider
+        python3 paramspider.py --domain ${{ github.event.inputs.domain }}
+
+    - name: Show Results
+      run: |
+        cd paramspider/results
+        cat "${{ github.event.inputs.domain }}.txt" || echo "No results found"
